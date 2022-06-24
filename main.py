@@ -39,6 +39,14 @@ def get_book_comments(response):
         book_comments.append(book_comment)
     return book_comments
 
+def get_book_genres(response):
+    soup = BeautifulSoup(response.text, 'lxml')
+    book_genres_soup = soup.select("span.d_book a")
+    book_genres = []
+    for book_genre_soup in book_genres_soup:
+        book_genre = book_genre_soup.text
+        book_genres.append(book_genre)
+    return book_genres
 
 def download_text(id, title):
     url = f'https://tululu.org/txt.php?id={id}'
@@ -72,10 +80,8 @@ if __name__ == "__main__":
             book_image_url = get_book_image_url(response)
             download_image(book_image_url)
             book_info = get_book_info(response)
-            print(book_info["title"], '\n')
-            book_comments = get_book_comments(response)
-            for book_comment in book_comments:
-                print(book_comment)
+            print(f'Заголовок: {book_info["title"]}', '\n')
+            print(get_book_genres(response))
             download_text(id, book_info['title'])
         except requests.exceptions.HTTPError:
             continue
