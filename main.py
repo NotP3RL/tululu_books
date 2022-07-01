@@ -13,41 +13,6 @@ def check_for_redirect(response):
     if response.url == 'https://tululu.org/':
         raise requests.exceptions.HTTPError
 
-def get_book_info(response):
-    soup = BeautifulSoup(response.text, 'lxml')
-    book_info = soup.find(id='content').find('h1').text
-    title, writer = book_info.split('::')
-    title = title[:len(title)-3:]
-    book_info = {
-        'title': title,
-        'writer': writer
-    }
-    return book_info
-
-def get_book_image_url(response):
-    soup = BeautifulSoup(response.text, 'lxml')
-    book_image = soup.find(class_='bookimage').find('img')['src']
-    book_image_url = urllib.parse.urljoin('https://tululu.org/', book_image)
-    return book_image_url
-
-def get_book_comments(response):
-    soup = BeautifulSoup(response.text, 'lxml')
-    book_comments_soup = soup.find_all(class_='texts')
-    book_comments = []
-    for book_comment_soup in book_comments_soup:
-        book_comment = book_comment_soup.find(class_='black').text
-        book_comments.append(book_comment)
-    return book_comments
-
-def get_book_genres(response):
-    soup = BeautifulSoup(response.text, 'lxml')
-    book_genres_soup = soup.select("span.d_book a")
-    book_genres = []
-    for book_genre_soup in book_genres_soup:
-        book_genre = book_genre_soup.text
-        book_genres.append(book_genre)
-    return book_genres
-
 def download_text(id, title):
     url = f'https://tululu.org/txt.php?id={id}'
     response = requests.get(url)
@@ -67,6 +32,31 @@ def download_image(image_url):
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
+def parse_book_page(response):
+    soup = BeautifulSoup(response.text, 'lxml')
+    book_info = soup.find(id='content').find('h1').text
+    book_image = soup.find(class_='bookimage').find('img')['src']
+    book_comments_soup = soup.find_all(class_='texts')
+    book_genres_soup = soup.select("span.d_book a")
+    title, author = book_info.split('::')
+    book_image_url = urllib.parse.urljoin('https://tululu.org/', book_image)
+    book_comments = []
+    for book_comment_soup in book_comments_soup:
+        book_comment = book_comment_soup.find(class_='black').text
+        book_comments.append(book_comment)
+    book_genres = []
+    for book_genre_soup in book_genres_soup:
+        book_genre = book_genre_soup.text
+        book_genres.append(book_genre)
+    book_params = {
+        'title': title.strip(),
+        'author': author.strip(),
+        'image_url': book_image_url,
+        'comments': book_comments,
+        'genres': book_genres
+    }
+    return book_params
+
 
 if __name__ == "__main__":
     os.makedirs(BOOKS_PATH, exist_ok=True)
@@ -77,11 +67,6 @@ if __name__ == "__main__":
             response = requests.get(url)
             response.raise_for_status()
             check_for_redirect(response)
-            book_image_url = get_book_image_url(response)
-            download_image(book_image_url)
-            book_info = get_book_info(response)
-            print(f'Заголовок: {book_info["title"]}', '\n')
-            print(get_book_genres(response))
-            download_text(id, book_info['title'])
+            print(parse_book_page(response))
         except requests.exceptions.HTTPError:
             continue
