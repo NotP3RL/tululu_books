@@ -1,3 +1,4 @@
+import argparse
 import os
 
 from bs4 import BeautifulSoup
@@ -13,6 +14,7 @@ def check_for_redirect(response):
     if response.url == 'https://tululu.org/':
         raise requests.exceptions.HTTPError
 
+
 def download_text(id, title):
     url = f'https://tululu.org/txt.php?id={id}'
     response = requests.get(url)
@@ -23,6 +25,7 @@ def download_text(id, title):
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
+
 def download_image(image_url):
     response = requests.get(image_url)
     response.raise_for_status()
@@ -31,6 +34,7 @@ def download_image(image_url):
     filepath = os.path.join(IMAGES_PATH, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
+
 
 def parse_book_page(response):
     soup = BeautifulSoup(response.text, 'lxml')
@@ -61,12 +65,22 @@ def parse_book_page(response):
 if __name__ == "__main__":
     os.makedirs(BOOKS_PATH, exist_ok=True)
     os.makedirs(IMAGES_PATH, exist_ok=True)
-    for id in range(1, 11):
+    parser = argparse.ArgumentParser(
+        description='Парсер tululu'
+    )
+    parser.add_argument("start_page", help="номер первой страницы категории", default=1, nargs="?", type=int)
+    parser.add_argument("end_page", help="номер последней страницы категории", default=1, nargs="?", type=int)
+    args = parser.parse_args()
+    start_page = args.start_page
+    end_page = args.end_page + 1
+    for id in range(start_page, end_page):
         try:
             url = f'https://tululu.org/b{id}'
             response = requests.get(url)
             response.raise_for_status()
             check_for_redirect(response)
-            print(parse_book_page(response))
+            book_params = parse_book_page(response)
+            download_image(book_params['image_url'])
+            download_text(id, book_params['title'])
         except requests.exceptions.HTTPError:
             continue
