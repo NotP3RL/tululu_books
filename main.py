@@ -1,9 +1,9 @@
 import argparse
 import os
 
-from bs4 import BeautifulSoup
-import urllib
 import requests
+import urllib
+from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 
 BOOKS_PATH = './books'
