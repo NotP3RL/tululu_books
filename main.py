@@ -4,7 +4,7 @@ import os
 import requests
 import urllib
 from bs4 import BeautifulSoup
-from pathvalidate import sanitize_filename
+from pathvalbook_idate import sanitize_filename
 
 BOOKS_PATH = './books'
 IMAGES_PATH = './images'
@@ -15,12 +15,12 @@ def check_for_redirect(response):
         raise requests.exceptions.HTTPError
 
 
-def download_text(id, title):
-    url = f'https://tululu.org/txt.php?id={id}'
+def download_text(book_id, title):
+    url = f'https://tululu.org/txt.php?id={book_id}'
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
-    filename = f'{id}. {sanitize_filename(title)}.txt'
+    filename = f'{book_id}. {sanitize_filename(title)}.txt'
     filepath = os.path.join(BOOKS_PATH, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
@@ -38,7 +38,7 @@ def download_image(image_url):
 
 def parse_book_page(response):
     soup = BeautifulSoup(response.text, 'lxml')
-    book_info = soup.find(id='content').find('h1').text
+    book_info = soup.find(book_id='content').find('h1').text
     book_image = soup.find(class_='bookimage').find('img')['src']
     book_comments_soup = soup.find_all(class_='texts')
     book_genres_soup = soup.select("span.d_book a")
@@ -73,14 +73,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
     start_page = args.start_page
     end_page = args.end_page + 1
-    for id in range(start_page, end_page):
+    for book_id in range(start_page, end_page):
         try:
-            url = f'https://tululu.org/b{id}'
+            url = f'https://tululu.org/b{book_id}'
             response = requests.get(url)
             response.raise_for_status()
             check_for_redirect(response)
             book_params = parse_book_page(response)
             download_image(book_params['image_url'])
-            download_text(id, book_params['title'])
+            download_text(book_id, book_params['title'])
         except requests.exceptions.HTTPError:
             continue
