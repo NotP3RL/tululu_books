@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 
 import requests
@@ -45,7 +46,7 @@ def parse_book_page(response):
     book_genres_soup = soup.select("span.d_book a")
     title, author = book_info.split('::')
     book_image_url = urllib.parse.urljoin(response.url, book_image)
-    book_comments = [book_comment_soup.text for book_comment_soup in book_comments_soup)
+    book_comments = [book_comment_soup.text for book_comment_soup in book_comments_soup]
     book_genres = [book_genre_soup.text for book_genre_soup in book_genres_soup]
     for book_genre_soup in book_genres_soup:
         book_genre = book_genre_soup.text
@@ -81,4 +82,5 @@ if __name__ == "__main__":
             download_image(book_params['image_url'])
             download_text(book_id, book_params['title'])
         except requests.exceptions.HTTPError:
+            logging.warning(f'Не удалось скачать книгу с id №{book_id}')
             continue
