@@ -16,8 +16,9 @@ def check_for_redirect(response):
 
 
 def download_text(book_id, title):
-    url = f'https://tululu.org/txt.php?id={book_id}'
-    response = requests.get(url)
+    url = f'https://tululu.org/txt.php'
+    params = {'id': book_id}
+    response = requests.get(url, params=params)
     response.raise_for_status()
     check_for_redirect(response)
     filename = f'{book_id}. {sanitize_filename(title)}.txt'
