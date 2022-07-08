@@ -4,7 +4,7 @@ import os
 import requests
 import urllib
 from bs4 import BeautifulSoup
-from pathvalbook_idate import sanitize_filename
+from pathvalidate import sanitize_filename
 
 BOOKS_PATH = './books'
 IMAGES_PATH = './images'
@@ -38,12 +38,12 @@ def download_image(image_url):
 
 def parse_book_page(response):
     soup = BeautifulSoup(response.text, 'lxml')
-    book_info = soup.find(book_id='content').find('h1').text
+    book_info = soup.find(id='content').find('h1').text
     book_image = soup.find(class_='bookimage').find('img')['src']
     book_comments_soup = soup.find_all(class_='texts')
     book_genres_soup = soup.select("span.d_book a")
     title, author = book_info.split('::')
-    book_image_url = urllib.parse.urljoin('https://tululu.org/', book_image)
+    book_image_url = urllib.parse.urljoin(response.url, book_image)
     book_comments = []
     for book_comment_soup in book_comments_soup:
         book_comment = book_comment_soup.find(class_='black').text
