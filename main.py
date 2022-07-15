@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+from time import sleep
 
 import requests
 import urllib
@@ -73,14 +74,23 @@ if __name__ == "__main__":
     start_page = args.start_page
     end_page = args.end_page + 1
     for book_id in range(start_page, end_page):
-        try:
-            url = f'https://tululu.org/b{book_id}'
-            response = requests.get(url)
-            response.raise_for_status()
-            check_for_redirect(response)
-            book_params = parse_book_page(response)
-            download_image(book_params['image_url'])
-            download_text(book_id, book_params['title'])
-        except requests.exceptions.HTTPError:
-            logging.warning(f'Не удалось скачать книгу с id №{book_id}')
-            continue
+        while True:
+            try:
+                url = f'https://tululu.org/b{book_id}'
+                response = requests.get(url)
+                response.raise_for_status()
+                check_for_redirect(response)
+                book_params = parse_book_page(response)
+                download_image(book_params['image_url'])
+                download_text(book_id, book_params['title'])
+                print(f'Скачалась книга с id №{book_id}')
+                break
+            except requests.exceptions.HTTPError:
+                logging.warning(f'Не удалось скачать книгу с id №{book_id}')
+                break
+            except requests.exceptions.ConnectionError:
+                logging.error('Подключение прерванно')
+                sleep(5)
+                logging.error('Пытаюсь произвести скачивание снова')
+            except requests.exceptions.ReadTimeout:
+                logging.error('Время ожидания ответа истекло')
