@@ -49,9 +49,6 @@ def parse_book_page(response):
     book_image_url = urllib.parse.urljoin(response.url, book_image)
     book_comments = [book_comment_soup.text for book_comment_soup in book_comments_soup]
     book_genres = [book_genre_soup.text for book_genre_soup in book_genres_soup]
-    for book_genre_soup in book_genres_soup:
-        book_genre = book_genre_soup.text
-        book_genres.append(book_genre)
     book_params = {
         'title': title.strip(),
         'author': author.strip(),
