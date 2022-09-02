@@ -1,2 +1,5 @@
 books
 images
+.idea
+__pycache__
+*.json
