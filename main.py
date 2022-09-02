@@ -41,8 +41,8 @@ def download_image(image_url):
 
 def parse_book_page(response):
     soup = BeautifulSoup(response.text, 'lxml')
-    book_info = soup.find(id='content').find('h1').text
-    book_image = soup.find(class_='bookimage').find('img')['src']
+    book_info = soup.select_one('h1').text
+    book_image = soup.select_one('div.bookimage img')['src']
     book_comments_soup = soup.select("div.texts span.black")
     book_genres_soup = soup.select("span.d_book a")
     title, author = book_info.split('::')
