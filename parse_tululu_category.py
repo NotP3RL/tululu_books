@@ -1,3 +1,4 @@
+import os
 import argparse
 import json
 import logging
@@ -14,11 +15,22 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Парсер tululu'
     )
-    parser.add_argument("start_page", help="номер первой страницы категории", default=1, nargs="?", type=int)
-    parser.add_argument("end_page", help="номер последней страницы категории", default=1, nargs="?", type=int)
+    parser.add_argument('start_page', help='номер первой страницы категории', default=1, nargs='?', type=int)
+    parser.add_argument('end_page', help='номер последней страницы категории', default=1, nargs='?', type=int)
+    parser.add_argument('--images_dir', help='путь к папке куда будут сохраняться обложки книг', default='images')
+    parser.add_argument('--books_dir', help='путь к папке куда будут сохраняться книги', default='books')
+    parser.add_argument('--json_dir', help='путь к папке куда будут сохраняться json со всеми книгами', default='')
+    parser.add_argument('--skip_books', help='нужно ли скачивать книги (вводите True или False)', default=False, action='store_true')
+    parser.add_argument('--skip_images', help='нужно ли скачивать обложки книг (вводите True или False)', default=False, action='store_true')
     args = parser.parse_args()
     start_page = args.start_page
     end_page = args.end_page + 1
+    images_dir = args.images_dir
+    books_dir = args.books_dir
+    json_dir = args.json_dir
+    skip_books = args.skip_books
+    skip_images = args.skip_images
+
     for page in range(start_page, end_page):
         try:
             url = urljoin('https://tululu.org/l55/', str(page))
@@ -34,13 +46,16 @@ if __name__ == "__main__":
                     check_for_redirect(response)
                     book_params = parse_book_page(response)
                     book_id = book_card['href'].replace('b', '').replace('/', '')
-                    download_image(book_params['image_url'])
+                    if not skip_images:
+                        download_image(book_params['image_url'], images_dir)
                     books_payload.append(book_params)
-                    download_text(book_id, book_params['title'])
+                    if not skip_books:
+                        download_text(book_id, book_params['title'], books_dir)
                 except requests.exceptions.HTTPError:
                     logging.exception('Ошибка')
         except requests.exceptions.HTTPError:
             logging.exception('Ошибка')
 
-    with open('books_payload.json', 'w', encoding='UTF-8') as my_file:
+    books_payload_path = os.path.join(json_dir, 'books_payload.json')
+    with open(books_payload_path, 'w', encoding='UTF-8') as my_file:
         json.dump(books_payload, my_file, ensure_ascii=False)

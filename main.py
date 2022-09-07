@@ -17,24 +17,24 @@ def check_for_redirect(response):
         raise requests.exceptions.HTTPError
 
 
-def download_text(book_id, title):
+def download_text(book_id, title, path=BOOKS_PATH):
     url = f'https://tululu.org/txt.php'
     params = {'id': book_id}
     response = requests.get(url, params=params)
     response.raise_for_status()
     check_for_redirect(response)
     filename = f'{book_id}. {sanitize_filename(title)}.txt'
-    filepath = os.path.join(BOOKS_PATH, filename)
+    filepath = os.path.join(path, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
 
-def download_image(image_url):
+def download_image(image_url, path=IMAGES_PATH):
     response = requests.get(image_url)
     response.raise_for_status()
     check_for_redirect(response)
     filename = urllib.parse.urlsplit(image_url, allow_fragments=True).path.split('/')[-1]
-    filepath = os.path.join(IMAGES_PATH, filename)
+    filepath = os.path.join(path, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
