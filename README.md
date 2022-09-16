@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ## Как запустить
 ### Скачивание книг по ID
 ```
-python main.py START_PAGE END_PAGE
+python parse_tululu_books.py START_PAGE END_PAGE
 ```
 Вместо START_PAGE нужно указать ID начальной книги, с которой начнётся скачивание файлов, а за место END_PAGE нужно указать ID конечной книги, на которой скачивание файлов закончиться.
 

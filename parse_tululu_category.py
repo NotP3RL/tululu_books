@@ -7,7 +7,7 @@ import requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
-from main import check_for_redirect, download_text, download_image, parse_book_page
+from parse_tululu_books import check_for_redirect, download_text, download_image, parse_book_page
 
 
 if __name__ == "__main__":
