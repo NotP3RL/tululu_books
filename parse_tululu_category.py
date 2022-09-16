@@ -57,5 +57,5 @@ if __name__ == "__main__":
             logging.exception('Ошибка')
 
     books_payload_path = os.path.join(json_dir, 'books_payload.json')
-    with open(books_payload_path, 'w', encoding='UTF-8') as my_file:
-        json.dump(books_payload, my_file, ensure_ascii=False)
+    with open(books_payload_path, 'w', encoding='UTF-8') as file:
+        json.dump(books_payload, file, ensure_ascii=False)
