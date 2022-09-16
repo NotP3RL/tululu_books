@@ -2,6 +2,7 @@ import os
 import argparse
 import json
 import logging
+from time import sleep
 
 import requests
 from urllib.parse import urljoin
@@ -32,29 +33,38 @@ if __name__ == "__main__":
     skip_images = args.skip_images
 
     for page in range(start_page, end_page):
-        try:
-            url = urljoin('https://tululu.org/l55/', str(page))
-            response = requests.get(url)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.text, 'lxml')
-            book_cards = soup.select('div.bookimage a')
-            for book_card in book_cards:
-                try:
-                    book_url = urljoin('http://tululu.org/', book_card['href'])
-                    response = requests.get(book_url)
-                    response.raise_for_status()
-                    check_for_redirect(response)
-                    book_params = parse_book_page(response)
-                    book_id = book_card['href'].replace('b', '').replace('/', '')
-                    if not skip_images:
-                        download_image(book_params['image_url'], images_dir)
-                    books_payload.append(book_params)
-                    if not skip_books:
-                        download_text(book_id, book_params['title'], books_dir)
-                except requests.exceptions.HTTPError:
-                    logging.exception('Ошибка')
-        except requests.exceptions.HTTPError:
-            logging.exception('Ошибка')
+        while True:
+            try:
+                url = urljoin('https://tululu.org/l55/', str(page))
+                response = requests.get(url)
+                response.raise_for_status()
+                soup = BeautifulSoup(response.text, 'lxml')
+                book_cards = soup.select('div.bookimage a')
+                for book_card in book_cards:
+                    try:
+                        book_url = urljoin('http://tululu.org/', book_card['href'])
+                        response = requests.get(book_url)
+                        response.raise_for_status()
+                        check_for_redirect(response)
+                        book_params = parse_book_page(response)
+                        book_id = book_card['href'].replace('b', '').replace('/', '')
+                        if not skip_images:
+                            download_image(book_params['image_url'], images_dir)
+                        books_payload.append(book_params)
+                        if not skip_books:
+                            download_text(book_id, book_params['title'], books_dir)
+                    except requests.exceptions.HTTPError:
+                        logging.exception('Ошибка')
+                break
+            except requests.exceptions.HTTPError:
+                logging.exception('Ошибка')
+                break
+            except requests.exceptions.ConnectionError:
+                logging.exception('Подключение прерванно')
+                sleep(5)
+                logging.exception('Пытаюсь произвести скачивание снова')
+            except requests.exceptions.ReadTimeout:
+                logging.exception('Время ожидания ответа истекло')
 
     books_payload_path = os.path.join(json_dir, 'books_payload.json')
     with open(books_payload_path, 'w', encoding='UTF-8') as file:
