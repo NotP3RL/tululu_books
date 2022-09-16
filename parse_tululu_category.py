@@ -15,6 +15,7 @@ def process_category_page(page, skip_images, skip_books, images_dir, books_dir):
     url = urljoin('https://tululu.org/l55/', str(page))
     response = requests.get(url)
     response.raise_for_status()
+    check_for_redirect(response)
     soup = BeautifulSoup(response.text, 'lxml')
     book_cards = soup.select('div.bookimage a')
     for book_card in book_cards:
