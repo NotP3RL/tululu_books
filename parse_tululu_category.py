@@ -28,10 +28,12 @@ def process_category_page(page, skip_images, skip_books, images_dir, books_dir):
                 book_params = parse_book_page(response)
                 book_id = book_card['href'].replace('b', '').replace('/', '')
                 if not skip_images:
-                    download_image(book_params['image_url'], images_dir)
-                books_payload.append(book_params)
+                    book_params['image_path'] = download_image(book_params['image_url'], images_dir)
+                    print(book_params['image_path'])
                 if not skip_books:
-                    download_text(book_id, book_params['title'], books_dir)
+                    book_params['book_path'] = download_text(book_id, book_params['title'], books_dir)
+                    print(book_params['book_path'])
+                books_payload.append(book_params)
                 break
             except requests.exceptions.HTTPError:
                 logging.exception('Ошибка')
@@ -51,8 +53,8 @@ if __name__ == "__main__":
     )
     parser.add_argument('start_page', help='номер первой страницы категории', default=1, nargs='?', type=int)
     parser.add_argument('end_page', help='номер последней страницы категории', default=1, nargs='?', type=int)
-    parser.add_argument('--images_dir', help='путь к папке куда будут сохраняться обложки книг', default='images')
-    parser.add_argument('--books_dir', help='путь к папке куда будут сохраняться книги', default='books')
+    parser.add_argument('--images_dir', help='путь к папке куда будут сохраняться обложки книг', default='media/images')
+    parser.add_argument('--books_dir', help='путь к папке куда будут сохраняться книги', default='media/books')
     parser.add_argument('--json_dir', help='путь к папке куда будут сохраняться json со всеми книгами', default='')
     parser.add_argument('--skip_books', help='нужно ли скачивать книги (вводите True или False)', default=False, action='store_true')
     parser.add_argument('--skip_images', help='нужно ли скачивать обложки книг (вводите True или False)', default=False, action='store_true')

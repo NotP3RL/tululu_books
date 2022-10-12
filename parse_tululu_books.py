@@ -8,8 +8,8 @@ import urllib
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 
-BOOKS_PATH = './books'
-IMAGES_PATH = './images'
+BOOKS_PATH = './media/books'
+IMAGES_PATH = './media/images'
 
 
 def check_for_redirect(response):
@@ -18,6 +18,7 @@ def check_for_redirect(response):
 
 
 def download_text(book_id, title, path=BOOKS_PATH):
+    os.makedirs(path, exist_ok=True)
     url = f'https://tululu.org/txt.php'
     params = {'id': book_id}
     response = requests.get(url, params=params)
@@ -27,9 +28,11 @@ def download_text(book_id, title, path=BOOKS_PATH):
     filepath = os.path.join(path, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
+    return filepath
 
 
 def download_image(image_url, path=IMAGES_PATH):
+    os.makedirs(path, exist_ok=True)
     response = requests.get(image_url)
     response.raise_for_status()
     check_for_redirect(response)
@@ -37,6 +40,7 @@ def download_image(image_url, path=IMAGES_PATH):
     filepath = os.path.join(path, filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
+    return filepath
 
 
 def parse_book_page(response):
@@ -59,8 +63,6 @@ def parse_book_page(response):
 
 
 if __name__ == "__main__":
-    os.makedirs(BOOKS_PATH, exist_ok=True)
-    os.makedirs(IMAGES_PATH, exist_ok=True)
     parser = argparse.ArgumentParser(
         description='Парсер tululu'
     )
