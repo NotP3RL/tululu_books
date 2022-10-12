@@ -1,7 +1,12 @@
+import os
 import json
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+
+PAGES_PATH = './pages'
+
 
 env = Environment(
     loader=FileSystemLoader('.'),
@@ -17,5 +22,6 @@ rendered_page = template.render(
     books_payload=books_payload
 )
 
-with open('index.html', 'w', encoding="utf8") as file:
+os.makedirs(PAGES_PATH, exist_ok=True)
+with open('pages/index.html', 'w', encoding="utf8") as file:
     file.write(rendered_page)
