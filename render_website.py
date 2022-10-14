@@ -19,10 +19,17 @@ template = env.get_template('template.html')
 with open('books_payload.json', 'rb') as file:
     books_payload = json.load(file)
 
-rendered_page = template.render(
-    books_pairs=list(chunked(books_payload, 2))
-)
+books_pairs = list(chunked(books_payload, 2))
+pages = list(chunked(books_pairs, 5))
 
 os.makedirs(PAGES_PATH, exist_ok=True)
-with open('pages/index.html', 'w', encoding="utf8") as file:
-    file.write(rendered_page)
+
+for number, page in enumerate(pages):
+    rendered_page = template.render(
+        page=page
+    )
+
+    number += 1
+
+    with open(f'pages/index{number}.html', 'w', encoding="utf8") as file:
+        file.write(rendered_page)
