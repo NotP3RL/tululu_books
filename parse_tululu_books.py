@@ -8,8 +8,8 @@ import urllib
 from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
 
-BOOKS_PATH = './media/books'
-IMAGES_PATH = './media/images'
+BOOKS_PATH = os.path.join('media', 'books')
+IMAGES_PATH = os.path.join('media', 'images')
 
 
 def check_for_redirect(response):

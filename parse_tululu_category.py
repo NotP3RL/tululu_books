@@ -29,10 +29,8 @@ def process_category_page(page, skip_images, skip_books, images_dir, books_dir):
                 book_id = book_card['href'].replace('b', '').replace('/', '')
                 if not skip_images:
                     book_params['image_path'] = download_image(book_params['image_url'], images_dir)
-                    print(book_params['image_path'])
                 if not skip_books:
                     book_params['book_path'] = download_text(book_id, book_params['title'], books_dir)
-                    print(book_params['book_path'])
                 books_payload.append(book_params)
                 break
             except requests.exceptions.HTTPError:

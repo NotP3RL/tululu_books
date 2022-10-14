@@ -5,3 +5,4 @@ pathvalidate==2.5.0
 requests==2.27.1
 urllib3==1.26.8
 Jinja2=2.1.1
+more-itertools==8.14.0
