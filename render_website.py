@@ -25,11 +25,13 @@ pages = list(chunked(books_pairs, 5))
 os.makedirs(PAGES_PATH, exist_ok=True)
 
 for number, page in enumerate(pages):
+    number += 1
     rendered_page = template.render(
-        page=page
+        pages_count=len(pages),
+        page=page,
+        page_number=number
     )
 
-    number += 1
 
     with open(f'pages/index{number}.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)
