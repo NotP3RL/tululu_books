@@ -26,8 +26,7 @@ pages = list(chunked(books_rows, books_in_col))
 
 os.makedirs(PAGES_PATH, exist_ok=True)
 
-for number, page in enumerate(pages):
-    number += 1
+for number, page in enumerate(pages, start=1):
     rendered_page = template.render(
         pages_count=len(pages),
         page=page,
