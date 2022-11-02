@@ -25,7 +25,7 @@ def download_text(book_id, title, path=BOOKS_PATH):
     response.raise_for_status()
     check_for_redirect(response)
     filename = f'{book_id}. {sanitize_filename(title)}.txt'
-    filepath = os.path.join(path, filename)
+    filepath = os.path.join(path, filename).replace(os.sep, '/')
     with open(filepath, 'wb') as file:
         file.write(response.content)
     return filepath
@@ -37,7 +37,7 @@ def download_image(image_url, path=IMAGES_PATH):
     response.raise_for_status()
     check_for_redirect(response)
     filename = urllib.parse.urlsplit(image_url, allow_fragments=True).path.split('/')[-1]
-    filepath = os.path.join(path, filename)
+    filepath = os.path.join(path, filename).replace(os.sep, '/')
     with open(filepath, 'wb') as file:
         file.write(response.content)
     return filepath
