@@ -19,8 +19,10 @@ template = env.get_template('template.html')
 with open('books_payload.json', 'rb') as file:
     books_payload = json.load(file)
 
-books_pairs = list(chunked(books_payload, 2))
-pages = list(chunked(books_pairs, 5))
+books_in_row = 2
+books_rows = list(chunked(books_payload, books_in_row))
+books_in_col = 5
+pages = list(chunked(books_rows, books_in_col))
 
 os.makedirs(PAGES_PATH, exist_ok=True)
 
